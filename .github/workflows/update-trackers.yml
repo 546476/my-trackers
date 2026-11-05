@@ -14,6 +14,22 @@ concurrency:
 
 jobs:
   update:
+name: Update trackers
+
+on:
+  schedule:
+    - cron: "0 9 */3 * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-trackers
+  cancel-in-progress: false
+
+jobs:
+  update:
     runs-on: ubuntu-24.04
     timeout-minutes: 10
 
@@ -42,6 +58,36 @@ jobs:
           for url in urls:
               try:
                   text = urllib.request.urlopen(url, timeout=20).read().decode("utf-8", "ignore")
+                  for line in text.splitlines():
+                      t = line.strip()
+                      if re.fullmatch(r"(?:udp|https?)://S+/announce(?:.php)?", t):
+                          trackers.add(t)
+              except Exception as e:
+                  failed.append(f"{url} - {e}")
+                  print(f"FAILED: {url}: {e}")
+
+          with open("trackers.txt", "w", encoding="utf-8") as f:
+              f.write("
+".join(sorted(trackers)) + "
+")
+
+          with open("failed-sources.txt", "w", encoding="utf-8") as f:
+              f.write("
+".join(failed) + "
+")
+
+          print(f"Saved {len(trackers)} trackers")
+          print(f"Failed sources: {len(failed)}")
+          PY
+
+      - name: Commit updated list
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add trackers.txt failed-sources.txt
+          git diff --cached --quiet || git commit -m "Update trackers"
+          git push
+")
                   for line in text.splitlines():
                       t = line.strip()
                       if re.fullmatch(r"(?:udp|https?)://S+/announce(?:.php)?", t):
