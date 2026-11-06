@@ -55,7 +55,7 @@ def fetch(url):
 
     encoding = (response.headers.get("Content-Encoding") or "").lower()
 
-        if encoding == "gzip" or data[:2] == b"\u001F":
+        if encoding == "gzip" or data[:2] == b"\u001F":
         try:
             data = gzip.GzipFile(fileobj=io.BytesIO(data)).read()
         except OSError:
