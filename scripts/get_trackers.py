@@ -13,7 +13,6 @@ HEADERS = {
 
 TRACKER_RE = re.compile(
     r"(?:udp|https?)://[^s"'<>\\]+/announce(?:.php)?",
-    re.IGNORECASE,
 )
 
 PRIVATE_RE = re.compile(
