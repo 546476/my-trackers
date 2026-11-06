@@ -25,11 +25,13 @@ jobs:
         run: python3 scripts/get_trackers.py
 
       - name: Commit updated list
-        run: python3 scripts/get_trackers.py
+        run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add trackers.txt
-          [ -f failed-sources.txt ] && git add failed-sources.txt
+          if [ -f failed-sources.txt ]; then
+            git add failed-sources.txt
+          fi
           git diff --cached --quiet || git commit -m "Update trackers"
           git pull --rebase origin "${GITHUB_REF_NAME}"
           git push
