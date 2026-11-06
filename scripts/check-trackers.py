@@ -1,30 +1,72 @@
 import asyncio
 import aiohttp
-import re
-            # Проверяем наличие ключевых слов
+
+KEYWORDS = {
+    "announce",
+    "peers",
+    "info_hash",
+    "completed",
+    "downloaded",
+    "seeders",
+    "leechers",
+}
+
+
+async def check_tracker(session: aiohttp.ClientSession, tracker_url: str) -> bool:
+    try:
+        async with session.get(tracker_url, timeout=20) as response:
+            if response.status != 200:
+                return False
+
+            content = await response.text()
+            lower_content = content.lower()
+
             for keyword in KEYWORDS:
                 if keyword in lower_content:
                     return True
-            # Если есть хотя бы 10 символов — считаем, что трекер работает
+
             return len(content.strip()) > 10
+
     except Exception:
         return False
 
+
 async def main():
-    # Читаем список трекеров из trackers.txt
     with open("trackers.txt", "r", encoding="utf-8") as f:
         lines = f.readlines()
-    trackers = [line.strip() for line in lines if line.strip() and not line.strip().startswith("#")]
 
-    # Проверяем каждый трекер
+    trackers = [
+        line.strip()
+        for line in lines
+        if line.strip() and not line.strip().startswith("#")
+    ]
+
+    udp_trackers = [url for url in trackers if url.lower().startswith("udp://")]
+    http_trackers = [url for url in trackers if not url.lower().startswith("udp://")]
+
     async with aiohttp.ClientSession() as session:
-        tasks = [check_tracker(session, url) for url in trackers]
+        tasks = [check_tracker(session, url) for url in http_trackers]
         results = await asyncio.gather(*tasks)
 
-    # Собираем рабочие трекеры
-    working_trackers = [url for url, success in zip(trackers, results) if success]
-    working_trackers.sort()
+    working_http_trackers = [
+        url
+        for url, success in zip(http_trackers, results)
+        if success
+    ]
 
-    # Записываем результат в trackers.txt
+    working_http_trackers.sort()
+
+    final_trackers = udp_trackers + working_http_trackers
+
     with open("trackers.txt", "w", encoding="utf-8", newline="\n") as f:
-        f.write("\n".join(working_trackers))
+        f.write("\n".join(final_trackers) + "\n")
+
+    print("UDP trackers kept:", len(udp_trackers))
+    print("HTTP trackers checked:", len(http_trackers))
+    print("HTTP trackers passed:", len(working_http_trackers))
+    print("HTTP trackers removed:", len(http_trackers) - len(working_http_trackers))
+    print("Total saved:", len(final_trackers))
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
