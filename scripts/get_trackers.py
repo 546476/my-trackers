@@ -11,17 +11,9 @@ HEADERS = {
     "Accept-Encoding": "gzip",
 }
 
-TRACKER_RE = re.compile(r"(?:udp|http|https)://[^\\s]+", re.IGNORECASE)
-
-PRIVATE_RE = re.compile(
-    r"(?:passkey|authkey|token|api_key|apikey|secret)=",
-    re.IGNORECASE,
-)
-
-DOWNLOAD_LINK_RE = re.compile(
-    r"https?://S+.(?:txt|list)",
-    re.IGNORECASE,
-)
+TRACKER_RE = re.compile(r"(?:udp|http|https)://S+", re.IGNORECASE)
+PRIVATE_RE = re.compile(r"(?:passkey|authkey|token|api_key|apikey|secret)=", re.IGNORECASE)
+DOWNLOAD_LINK_RE = re.compile(r"https?://S+.(?:txt|list)", re.IGNORECASE)
 
 urls = [
     "https://ngosang.github.io/trackerslist/trackers_all.txt",
@@ -49,8 +41,8 @@ def fetch(url):
 
     with urllib.request.urlopen(request, timeout=25) as response:
         data = response.read()
-
-    encoding = (response.headers.get("Content-Encoding") or "").lower()
+        encoding = (response.headers.get("Content-Encoding") or "").lower()
+        charset = response.headers.get_content_charset() or "utf-8"
 
     if encoding == "gzip" or data[:2] == bytes([31, 139]):
         try:
@@ -58,29 +50,36 @@ def fetch(url):
         except OSError:
             pass
 
-    charset = response.headers.get_content_charset() or "utf-8"
     return data.decode(charset, errors="ignore")
+
+
+def is_valid_tracker(tracker):
+    if not tracker:
+        return False
+
+    if TRACKER_RE.fullmatch(tracker) is None:
+        return False
+
+    if any(ch.isspace() for ch in tracker):
+        return False
+
+    if not tracker.lower().startswith(("udp://", "http://", "https://")):
+        return False
+
+    if PRIVATE_RE.search(tracker):
+        return False
+
+    return True
 
 
 def extract_trackers(text):
     found = set()
 
-    for tracker in TRACKER_RE.findall(text):
-        tracker = tracker.strip()
+    for match in TRACKER_RE.finditer(text):
+        tracker = match.group(0).strip()
 
-        if "://" not in tracker:
-            continue
-
-        if " " in tracker:
-            continue
-
-        if not tracker.lower().startswith(("udp://", "http://", "https://")):
-            continue
-
-        if PRIVATE_RE.search(tracker):
-            continue
-
-        found.add(tracker)
+        if is_valid_tracker(tracker):
+            found.add(tracker)
 
     return found
 
@@ -99,7 +98,10 @@ def json_strings(value):
 def process_url(url, depth=0):
     try:
         text = fetch(url)
-        trackers.update(extract_trackers(text))
+        found = extract_trackers(text)
+        trackers.update(found)
+
+        print("OK: " + url + " -> " + str(len(found)) + " trackers")
 
         stripped = text.lstrip()
 
@@ -134,17 +136,19 @@ for url in urls:
 
 newline = chr(10)
 
+clean_trackers = sorted(
+    tracker for tracker in trackers
+    if is_valid_tracker(tracker)
+)
+
+if not clean_trackers:
+    raise SystemExit("ERROR: no valid trackers were found; trackers.txt was not changed")
+
 with open("trackers.txt", "w", encoding="utf-8") as file:
-    file.write(newline.join(sorted(trackers)) + newline)
+    file.write(newline.join(clean_trackers) + newline)
 
 with open("failed-sources.txt", "w", encoding="utf-8") as file:
-    file.write("".join(failed) + "")
+    file.write(newline.join(failed) + (newline if failed else ""))
 
-print("Saved " + str(len(trackers)) + " trackers")
-print("Failed sources: " + str(len(failed)))
-
-with open("failed-sources.txt", "w", encoding="utf-8") as file:
-    file.write("".join(failed) + "")
-
-print("Saved " + str(len(trackers)) + " trackers")
+print("Saved " + str(len(clean_trackers)) + " valid trackers")
 print("Failed sources: " + str(len(failed)))
