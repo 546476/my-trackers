@@ -125,13 +125,10 @@ for url in urls:
     process_url(url)
 
 with open("trackers.txt", "w", encoding="utf-8") as file:
-    file.write(.join(sorted(trackers)) + "
-")
+    file.write("".join(sorted(trackers)) + "")
 
 with open("failed-sources.txt", "w", encoding="utf-8") as file:
-    file.write("
-".join(failed) + "
-")
+    file.write("".join(failed) + "")
 
 print("Saved " + str(len(trackers)) + " trackers")
 print("Failed sources: " + str(len(failed)))
