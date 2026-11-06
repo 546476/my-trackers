@@ -19,10 +19,13 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
-      - name: Download and clean trackers
-        run: python3 scripts/get_trackers.py
+      - name: Install dependencies
+        run: pip install aiohttp
+
+      - name: Check trackers
+        run: python3 scripts/check-trackers.py
 
       - name: Commit updated list
         run: |
@@ -35,9 +38,3 @@ jobs:
           git diff --cached --quiet || git commit -m "Update trackers"
           git pull --rebase origin "${GITHUB_REF_NAME}"
           git push
-      - name: Check Trackers
-        run: |
-          python3 -m venv venv
-          source venv/bin/activate
-          pip install aiohttp
-          python scripts/check-trackers.py
