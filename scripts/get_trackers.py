@@ -11,7 +11,7 @@ HEADERS = {
     "Accept-Encoding": "gzip",
 }
 
-TRACKER_RE = re.compile(r"(udp|http|https)://[^\\s]+", re.IGNORECASE)
+TRACKER_RE = re.compile(r"(?:udp|http|https)://[^\\s]+", re.IGNORECASE)
 
 PRIVATE_RE = re.compile(
     r"(?:passkey|authkey|token|api_key|apikey|secret)=",
@@ -65,12 +65,22 @@ def fetch(url):
 def extract_trackers(text):
     found = set()
 
-    for tracker in re.findall(r"(?:udp|http|https)://[^\\s]+", text, re.IGNORECASE):
-        tracker = tracker.strip().rstrip(".,;:)")
-        tracker = tracker.rstrip(".,;:")
+    for tracker in TRACKER_RE.findall(text):
+        tracker = tracker.strip()
 
-        if not PRIVATE_RE.search(tracker):
-            found.add(tracker)
+        if "://" not in tracker:
+            continue
+
+        if " " in tracker:
+            continue
+
+        if not tracker.lower().startswith(("udp://", "http://", "https://")):
+            continue
+
+        if PRIVATE_RE.search(tracker):
+            continue
+
+        found.add(tracker)
 
     return found
 
