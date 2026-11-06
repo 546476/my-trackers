@@ -12,7 +12,7 @@ HEADERS = {
 }
 
 TRACKER_RE = re.compile(
-    r"^(udp|http|https)://S+$",
+    r"^(udp|http|https)://\S+$",
     re.IGNORECASE,
 )
 
@@ -55,7 +55,7 @@ def fetch(url):
 
     encoding = (response.headers.get("Content-Encoding") or "").lower()
 
-    if encoding == "gzip" or data[:2] == bytes[31, 139]:
+    if encoding == "gzip" or data[:2] == bytes([31, 139]):
         try:
             data = gzip.GzipFile(fileobj=io.BytesIO(data)).read()
         except OSError:
