@@ -25,7 +25,7 @@ jobs:
         run: python3 scripts/get_trackers.py
 
       - name: Commit updated list
-        run: |
+        run: python3 scripts/get_trackers.py
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add trackers.txt
