@@ -11,9 +11,19 @@ HEADERS = {
     "Accept-Encoding": "gzip",
 }
 
-TRACKER_RE = re.compile(r"(?:udp|http|https)://S+", re.IGNORECASE)
-PRIVATE_RE = re.compile(r"(?:passkey|authkey|token|api_key|apikey|secret)=", re.IGNORECASE)
-DOWNLOAD_LINK_RE = re.compile(r"https?://S+.(?:txt|list)", re.IGNORECASE)
+# ВАЖНО: [^\s] (один обратный слеш), а не [^\\s]
+TRACKER_RE = re.compile(r"(?:udp|http|https)://[^\s\"'<>]+", re.IGNORECASE)
+
+PRIVATE_RE = re.compile(
+    r"(?:passkey|authkey|token|api_key|apikey|secret)=",
+    re.IGNORECASE,
+)
+
+# \S+ и экранированная точка
+DOWNLOAD_LINK_RE = re.compile(
+    r"https?://[^\s\"'<>]+\.(?:txt|list)(?:\?[^\s\"'<>]*)?",
+    re.IGNORECASE,
+)
 
 urls = [
     "https://ngosang.github.io/trackerslist/trackers_all.txt",
@@ -29,22 +39,22 @@ urls = [
     "https://newtrackon.com/api/stable",
     "https://cf.trackerslist.com/all.txt",
     "https://trackers.run/s/rw_ws_up_hp_hs_v4_v6.txt",
-    "https://torrends.to/torrent-tracker-list/?download=latest"
+    "https://torrends.to/torrent-tracker-list/?download=latest",
 ]
 
 trackers = set()
 failed = []
 
+TRAILING_JUNK = ".,;:)]}\"'"
 
 def fetch(url):
     request = urllib.request.Request(url, headers=HEADERS)
-
     with urllib.request.urlopen(request, timeout=25) as response:
         data = response.read()
-        encoding = (response.headers.get("Content-Encoding") or "").lower()
+        content_encoding = (response.headers.get("Content-Encoding") or "").lower()
         charset = response.headers.get_content_charset() or "utf-8"
 
-    if encoding == "gzip" or data[:2] == bytes([31, 139]):
+    if content_encoding == "gzip" or data[:2] == b"\x1f\x8b":
         try:
             data = gzip.GzipFile(fileobj=io.BytesIO(data)).read()
         except OSError:
@@ -52,37 +62,28 @@ def fetch(url):
 
     return data.decode(charset, errors="ignore")
 
-
-def is_valid_tracker(tracker):
+def normalize(tracker):
+    tracker = tracker.strip().strip(TRAILING_JUNK)
     if not tracker:
-        return False
-
-    if TRACKER_RE.fullmatch(tracker) is None:
-        return False
-
+        return None
     if any(ch.isspace() for ch in tracker):
-        return False
-
+        return None
     if not tracker.lower().startswith(("udp://", "http://", "https://")):
-        return False
-
+        return None
     if PRIVATE_RE.search(tracker):
-        return False
-
-    return True
-
+        return None
+    host = tracker.split("://", 1)[1]
+    if not host:
+        return None
+    return tracker
 
 def extract_trackers(text):
     found = set()
-
-    for match in TRACKER_RE.finditer(text):
-        tracker = match.group(0).strip()
-
-        if is_valid_tracker(tracker):
+    for candidate in TRACKER_RE.findall(text):
+        tracker = normalize(candidate)
+        if tracker:
             found.add(tracker)
-
     return found
-
 
 def json_strings(value):
     if isinstance(value, str):
@@ -94,61 +95,44 @@ def json_strings(value):
         for item in value:
             yield from json_strings(item)
 
-
 def process_url(url, depth=0):
     try:
         text = fetch(url)
-        found = extract_trackers(text)
-        trackers.update(found)
-
-        print("OK: " + url + " -> " + str(len(found)) + " trackers")
+        trackers.update(extract_trackers(text))
 
         stripped = text.lstrip()
 
         if stripped.startswith(("{", "[")):
             try:
                 data = json.loads(text)
-
                 for value in json_strings(data):
                     trackers.update(extract_trackers(value))
             except json.JSONDecodeError:
                 pass
 
-        if depth == 0 and ("<a " in text.lower() or "html" in text.lower()):
+        if depth == 0 and stripped.startswith("<"):
             links = set()
-
             for link in DOWNLOAD_LINK_RE.findall(text):
                 absolute = urljoin(url, link)
-
                 if urlparse(absolute).netloc:
                     links.add(absolute)
-
             for link in list(links)[:10]:
                 process_url(link, depth=1)
 
     except Exception as error:
-        failed.append(url + " - " + str(error))
-        print("FAILED: " + url + ": " + str(error))
-
+        failed.append(f"{url} - {error}")
+        print(f"FAILED: {url}: {error}")
 
 for url in urls:
     process_url(url)
 
-newline = chr(10)
+with open("trackers.txt", "w", encoding="utf-8", newline="\n") as file:
+    file.write("\n".join(sorted(trackers)))
+    if trackers:
+        file.write("\n")
 
-clean_trackers = sorted(
-    tracker for tracker in trackers
-    if is_valid_tracker(tracker)
-)
+with open("failed-sources.txt", "w", encoding="utf-8", newline="\n") as file:
+    file.write("\n".join(failed))
 
-if not clean_trackers:
-    raise SystemExit("ERROR: no valid trackers were found; trackers.txt was not changed")
-
-with open("trackers.txt", "w", encoding="utf-8") as file:
-    file.write(newline.join(clean_trackers) + newline)
-
-with open("failed-sources.txt", "w", encoding="utf-8") as file:
-    file.write(newline.join(failed) + (newline if failed else ""))
-
-print("Saved " + str(len(clean_trackers)) + " valid trackers")
-print("Failed sources: " + str(len(failed)))
+print(f"Saved {len(trackers)} trackers")
+print(f"Failed sources: {len(failed)}")
