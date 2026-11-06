@@ -134,9 +134,7 @@ print("Saved " + str(len(trackers)) + " trackers")
 print("Failed sources: " + str(len(failed)))
 
 with open("failed-sources.txt", "w", encoding="utf-8") as file:
-    file.write("
-".join(failed) + "
-")
+    file.write("".join(failed) + "")
 
 print("Saved " + str(len(trackers)) + " trackers")
 print("Failed sources: " + str(len(failed)))
