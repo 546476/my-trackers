@@ -12,7 +12,7 @@ HEADERS = {
 }
 
 TRACKER_RE = re.compile(
-    r"(?:udp|https?)://[^s"'<>\\]+/announce(?:.php)?",
+    r"^(udp|http|https)://S+$",
     re.IGNORECASE,
 )
 
@@ -22,7 +22,7 @@ PRIVATE_RE = re.compile(
 )
 
 DOWNLOAD_LINK_RE = re.compile(
-    r"https?://[^s"'<>\\]+[./](?:txt|list)(?:?[^s"'<>\\]*)?",
+    r"https?://S+.(?:txt|list)",
     re.IGNORECASE,
 )
 
