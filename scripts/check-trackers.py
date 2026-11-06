@@ -1,37 +1,30 @@
-Set-Content -Path .\check-trackers.ps1 -Value @'
-$ErrorActionPreference = "Stop"
+import asyncio
+import aiohttp
+import re
+            # Проверяем наличие ключевых слов
+            for keyword in KEYWORDS:
+                if keyword in lower_content:
+                    return True
+            # Если есть хотя бы 10 символов — считаем, что трекер работает
+            return len(content.strip()) > 10
+    except Exception:
+        return False
 
-# Загружаем список трекеров из trackers.txt
-$trackers = Get-Content -Path .\trackers.txt -Raw -Encoding UTF8
-$trackers = $trackers -split "`n" | Where-Object { $_.Trim() -and -not $_.Trim().StartsWith("#") } | ForEach-Object { $_.Trim() }
+async def main():
+    # Читаем список трекеров из trackers.txt
+    with open("trackers.txt", "r", encoding="utf-8") as f:
+        lines = f.readlines()
+    trackers = [line.strip() for line in lines if line.strip() and not line.strip().startswith("#")]
 
-# Проверяем каждый трекер
-foreach ($url in $urls) {
-    try {
-        $response = Invoke-WebRequest -Uri $url -UseBasicParsing -TimeoutSec 20
-        $content = $response.Content
+    # Проверяем каждый трекер
+    async with aiohttp.ClientSession() as session:
+        tasks = [check_tracker(session, url) for url in trackers]
+        results = await asyncio.gather(*tasks)
 
-        # Проверка: есть ли в ответе полезные данные
-        if ($content.Length -gt 10) {
-            # Проверяем наличие ключевых слов: announce, peers, info_hash
-            $lowerContent = $content.ToLower()
-            if ($lowerContent -match "announce" -or $lowerContent -match "peers" -or $lowerContent -match "info_hash") {
-                [void]$working.Add($url)
-            }
-        }
+    # Собираем рабочие трекеры
+    working_trackers = [url for url, success in zip(trackers, results) if success]
+    working_trackers.sort()
 
-        Write-Host "OK: $url"
-    }
-    catch {
-        $failed += $url
-        Write-Warning "Не удалось получить: $url"
-    }
-}
-
-# Форматируем выходной список: каждый трекер — на отдельной строке, без пустых строк
-$output = ($working | Sort-Object) -join "`n"
-
-# Сохраняем результат в trackers.txt
-Set-Content -Path .\trackers.txt -Value $output -Encoding UTF8
-}
-'@
+    # Записываем результат в trackers.txt
+    with open("trackers.txt", "w", encoding="utf-8", newline="\n") as f:
+        f.write("\n".join(working_trackers))
