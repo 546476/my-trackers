@@ -132,8 +132,10 @@ def process_url(url, depth=0):
 for url in urls:
     process_url(url)
 
+newline = chr(10)
+
 with open("trackers.txt", "w", encoding="utf-8") as file:
-    file.write("".join(sorted(trackers)) + "")
+    file.write(newline.join(sorted(trackers)) + newline)
 
 with open("failed-sources.txt", "w", encoding="utf-8") as file:
     file.write("".join(failed) + "")
