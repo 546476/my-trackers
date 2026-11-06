@@ -38,6 +38,8 @@ urls = [
     "https://raw.githubusercontent.com/dr5hx/tracker_merge/master/all.txt",
     "https://raw.githubusercontent.com/jhhd88/trackerslist/refs/heads/master/trackerslist.txt",
     "https://newtrackon.com/api/stable",
+    "https://cf.trackerslist.com/all.txt",
+    "https://trackers.run/s/rw_ws_up_hp_hs_v4_v6.txt",
     "https://torrends.to/torrent-tracker-list/?download=latest"
 ]
 
