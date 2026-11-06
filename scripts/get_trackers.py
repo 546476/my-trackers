@@ -11,10 +11,7 @@ HEADERS = {
     "Accept-Encoding": "gzip",
 }
 
-TRACKER_RE = re.compile(
-    r"^(udp|http|https)://\S+$",
-    re.IGNORECASE,
-)
+TRACKER_RE = re.compile(r"(udp|http|https)://[^\\s]+", re.IGNORECASE)
 
 PRIVATE_RE = re.compile(
     r"(?:passkey|authkey|token|api_key|apikey|secret)=",
