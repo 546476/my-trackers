@@ -15,17 +15,28 @@ concurrency:
 jobs:
   update:
     runs-on: ubuntu-24.04
-    timeout-minutes: 10
+    timeout-minutes: 15
 
     steps:
       - name: Checkout
         uses: actions/checkout@v6
 
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
       - name: Install dependencies
-        run: pip install aiohttp
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Download and clean trackers
+        run: python scripts/get_trackers.py
 
       - name: Check trackers
-        run: python3 scripts/check-trackers.py
+        run: python scripts/check-trackers.py
 
       - name: Commit updated list
         run: |
