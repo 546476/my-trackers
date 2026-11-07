@@ -14,11 +14,14 @@ KEYWORDS = {
 
 async def check_tracker(session: aiohttp.ClientSession, tracker_url: str) -> bool:
     try:
-        async with session.get(tracker_url, timeout=20) as response:
+        async with session.get(
+            tracker_url,
+            timeout=aiohttp.ClientTimeout(total=15),
+        ) as response:
             if response.status != 200:
                 return False
 
-            content = await response.text()
+            content = await response.text(errors="ignore")
             lower_content = content.lower()
 
             for keyword in KEYWORDS:
@@ -41,11 +44,33 @@ async def main():
         if line.strip() and not line.strip().startswith("#")
     ]
 
-    udp_trackers = [url for url in trackers if url.lower().startswith("udp://")]
-    http_trackers = [url for url in trackers if not url.lower().startswith("udp://")]
+    udp_trackers = [
+        url for url in trackers if url.lower().startswith("udp://")
+    ]
 
-    async with aiohttp.ClientSession() as session:
-        tasks = [check_tracker(session, url) for url in http_trackers]
+    http_trackers = [
+        url for url in trackers if not url.lower().startswith("udp://")
+    ]
+
+    semaphore = asyncio.Semaphore(75)
+
+    async def check_with_limit(url):
+        async with semaphore:
+            return await check_tracker(session, url)
+
+    connector = aiohttp.TCPConnector(
+        limit=75,
+        limit_per_host=5,
+        ttl_dns_cache=300,
+    )
+
+    async with aiohttp.ClientSession(
+        connector=connector,
+        headers={
+            "User-Agent": "Mozilla/5.0 (compatible; tracker-checker)"
+        },
+    ) as session:
+        tasks = [check_with_limit(url) for url in http_trackers]
         results = await asyncio.gather(*tasks)
 
     working_http_trackers = [
