@@ -11,12 +11,16 @@ KEYWORDS = {
     "leechers",
 }
 
-
 async def check_tracker(session: aiohttp.ClientSession, tracker_url: str) -> bool:
     try:
         async with session.get(
             tracker_url,
-            timeout=aiohttp.ClientTimeout(total=15),
+            timeout=aiohttp.ClientTimeout(
+                total=10,
+                connect=5,
+                sock_connect=5,
+                sock_read=5,
+            ),
         ) as response:
             if response.status != 200:
                 return False
@@ -32,7 +36,6 @@ async def check_tracker(session: aiohttp.ClientSession, tracker_url: str) -> boo
 
     except Exception:
         return False
-
 
 async def main():
     with open("trackers.txt", "r", encoding="utf-8") as f:
@@ -52,15 +55,15 @@ async def main():
         url for url in trackers if not url.lower().startswith("udp://")
     ]
 
-    semaphore = asyncio.Semaphore(75)
+    semaphore = asyncio.Semaphore(110)
 
     async def check_with_limit(url):
         async with semaphore:
             return await check_tracker(session, url)
 
     connector = aiohttp.TCPConnector(
-        limit=75,
-        limit_per_host=5,
+        limit=110,
+        limit_per_host=8,
         ttl_dns_cache=300,
     )
 
@@ -91,7 +94,6 @@ async def main():
     print("HTTP trackers passed:", len(working_http_trackers))
     print("HTTP trackers removed:", len(http_trackers) - len(working_http_trackers))
     print("Total saved:", len(final_trackers))
-
 
 if __name__ == "__main__":
     asyncio.run(main())
