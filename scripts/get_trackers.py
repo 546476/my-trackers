@@ -38,8 +38,10 @@ urls = [
     "https://raw.githubusercontent.com/jhhd88/trackerslist/refs/heads/master/trackerslist.txt",
     "https://newtrackon.com/api/stable",
     "https://cf.trackerslist.com/all.txt",
-    "https://trackers.run/s/rw_ws_up_hp_hs_v4_v6.txt",
+    "https://trackers.run/",
     "https://torrends.to/torrent-tracker-list/?download=latest",
+    "https://gist.githubusercontent.com/dujiulun/e90ae9e835d8e41ddc63/raw/e78883869a308395a1bf5d7296d65a3893a5bae6/BitTorrent-Trackers.txt",
+    "https://tracker.adysec.com/trackers_best.txt"
 ]
 
 trackers = set()
