@@ -1,15 +1,7 @@
 import asyncio
 import aiohttp
 
-KEYWORDS = {
-    "announce",
-    "peers",
-    "info_hash",
-    "completed",
-    "downloaded",
-    "seeders",
-    "leechers",
-}
+BENCODE_SIGNS = ("interval", "peers", "failure reason")
 
 async def check_tracker(session: aiohttp.ClientSession, tracker_url: str) -> bool:
     try:
@@ -21,18 +13,22 @@ async def check_tracker(session: aiohttp.ClientSession, tracker_url: str) -> boo
                 sock_connect=5,
                 sock_read=5,
             ),
+            allow_redirects=True,
         ) as response:
-            if response.status != 200:
+            if response.status < 200 or response.status >= 300:
                 return False
 
             content = await response.text(errors="ignore")
-            lower_content = content.lower()
+            stripped = content.strip()
+            lower_content = stripped.lower()
 
-            for keyword in KEYWORDS:
-                if keyword in lower_content:
-                    return True
+            if stripped.startswith("d") and stripped.endswith("e"):
+                return True
 
-            return len(content.strip()) > 10
+            if any(sign in lower_content for sign in BENCODE_SIGNS):
+                return True
+
+            return False
 
     except Exception:
         return False
