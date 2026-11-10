@@ -345,6 +345,10 @@ async def main() -> None:
     working_udp_trackers.sort()
 
     final_trackers = working_udp_trackers + working_http_trackers
+    
+    print("HTTP rejection reasons:")
+    for reason, count in reasons.items():
+        print(f"{reason}: {count}")
 
     with open("trackers.txt", "w", encoding="utf-8") as file:file.write("".join(final_trackers) + "")
 
