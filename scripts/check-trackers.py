@@ -134,6 +134,9 @@ newline = chr(10)
 import asyncio
 
 async def main():
+    http_trackers = []
+    udp_trackers = []
+    
     http_tasks = [
         check_http_with_limit(url)
         for url in http_trackers
