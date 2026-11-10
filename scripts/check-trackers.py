@@ -44,10 +44,10 @@ trackers = set()
 failed = []
 
 def fetch(url):
-request = urllib.request.Request(url, headers=HEADERS)
+    request = urllib.request.Request(url, headers=HEADERS)
 
     with urllib.request.urlopen(request, timeout=25) as response:
-data = response.read()
+        data = response.read()
 
     encoding = (response.headers.get("Content-Encoding") or "").lower()
 
