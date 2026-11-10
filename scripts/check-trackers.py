@@ -2,7 +2,7 @@ import asyncio
 import aiohttp
 import random
 import struct
-from urllib.parse import urlparse
+from urllib.parse import quote, urlparse
 
 HTTP_CONCURRENCY = 110
 HTTP_LIMIT_PER_HOST = 8
@@ -28,14 +28,17 @@ async def check_http_tracker(
     tracker_url: str,
 ) -> bool:
     try:
+        info_hash = quote(FAKE_INFO_HASH)
+        peer_id = quote(FAKE_PEER_ID)
+
         params = {
-            "info_hash": FAKE_INFO_HASH,
-            "peer_id": FAKE_PEER_ID,
-            "port": 6881,
-            "uploaded": 0,
-            "downloaded": 0,
-            "left": 0,
-            "event": "started","compact": 1,
+        "info_hash": info_hash,
+        "peer_id": peer_id,
+        "port": 6881,
+        "uploaded": 0,
+        "downloaded": 0,
+        "left": 0,
+        "event": "started","compact": 1,
     }
         async with session.get(
             tracker_url, params=params,
@@ -61,10 +64,7 @@ async def check_http_tracker(
             if not (stripped.startswith(b"d") and stripped.endswith(b"e")):
                 return False
 
-            if b"interval" not in lower_content:
-                return False
-
-            if b"peers" not in lower_content:
+            if b"peers" not in lower_content and b"peers6" not in lower_content:
                 return False
 
             return True
