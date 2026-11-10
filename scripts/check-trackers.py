@@ -134,27 +134,28 @@ for url in urls:
 
 newline = chr(10)
 
-        http_tasks = [
+http_tasks = [
 check_http_with_limit(url)
 for url in http_trackers
 ]
 
-        udp_tasks = [
+udp_tasks = [
 check_udp_with_limit(url)
 for url in udp_trackers
 ]
 
-        http_results, udp_results = await asyncio.gather(
+http_results, udp_results = await asyncio.gather(
 asyncio.gather(*http_tasks),
 asyncio.gather(*udp_tasks),
 )
-    working_http_trackers = [
+
+working_http_trackers = [
 url
 for url, is_working in zip(http_trackers, http_results)
 if is_working
 ]
 
-    working_udp_trackers = [
+working_udp_trackers = [
 url
 for url, is_working in zip(udp_trackers, udp_results)
 if is_working
