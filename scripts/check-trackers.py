@@ -39,6 +39,12 @@ MAX_UDP_CONCURRENT_CHECKS = 150
 
 
 def extract_trackers(text):
+    if tracker.lower().endswith((".txt", ".list")) or any(
+    domain in parsed.netloc.lower()
+    for domain in ("github.com", "jsdelivr.net", "ngosang.github.io")
+):
+    continue
+    
     found = set()
 
     for tracker in TRACKER_RE.findall(text):
