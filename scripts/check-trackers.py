@@ -129,6 +129,18 @@ def process_url(url, depth=0):
 for url in urls:
     process_url(url)
 
+http_trackers = sorted(
+    tracker
+    for tracker in trackers
+    if tracker.startswith(("http://", "https://"))
+)
+
+udp_trackers = sorted(
+    tracker
+    for tracker in trackers
+    if tracker.startswith("udp://")
+)
+
 newline = chr(10)
 
 import asyncio
