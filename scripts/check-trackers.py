@@ -151,6 +151,22 @@ async def check_http_tracker(session, semaphore, tracker):
         return False
 
 
+class UDPTrackerProtocol(asyncio.DatagramProtocol):
+    def __init__(self, future):
+        self.future = future
+
+    def connection_made(self, transport):
+        self.transport = transport
+
+    def datagram_received(self, data, addr):
+        if not self.future.done():
+            self.future.set_result(data)
+
+    def error_received(self, exc):
+        if not self.future.done():
+            self.future.set_exception(exc)
+
+
 async def check_udp_tracker(semaphore, tracker):
     async with semaphore:
         for attempt in range(2):
@@ -167,27 +183,20 @@ async def check_udp_tracker(semaphore, tracker):
                 )
                 _, _, _, _, target = address[0]
 
+                future = loop.create_future()
                 transport, protocol = await loop.create_datagram_endpoint(
-                    lambda: asyncio.DatagramProtocol(),
+                    lambda: UDPTrackerProtocol(future),
                     remote_addr=target,
                 )
 
                 try:
                     transaction_id = 0x12345678
                     request = struct.pack(
-                    "!QII",
-                    0x41727101980,
-                    0,
-                    transaction_id,
-)
-
-                    future = loop.create_future()
-
-                    def datagram_received(data, addr):
-                        if not future.done():
-                            future.set_result(data)
-
-                    protocol.datagram_received = datagram_received
+                        "!QII",
+                        0x41727101980,
+                        0,
+                        transaction_id,
+                    )
 
                     transport.sendto(request)
                     response = await asyncio.wait_for(future, CHECK_TIMEOUT)
