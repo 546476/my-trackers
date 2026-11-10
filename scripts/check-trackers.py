@@ -58,25 +58,25 @@ def fetch(url):
             pass
 
     charset = response.headers.get_content_charset() or "utf-8"
-return data.decode(charset, errors="ignore")
+    return data.decode(charset, errors="ignore")
 
 def extract_trackers(text):
-found = set()
+    found = set()
 
     for tracker in TRACKER_RE.findall(text):
-tracker = tracker.strip()
+        tracker = tracker.strip()
 
         if "://" not in tracker:
-continue
+            continue
 
         if " " in tracker:
-continue
+            continue
 
         if not tracker.lower().startswith(("udp://", "http://", "https://")):
-continue
+            continue
 
         if PRIVATE_RE.search(tracker):
-continue
+            continue
 
         found.add(tracker)
 
