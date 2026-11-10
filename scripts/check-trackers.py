@@ -152,13 +152,15 @@ asyncio.gather(*udp_tasks),
 
 working_http_trackers = [
 url
-for url, is_working in zip(http_trackers, http_results)
+for url, is_working in
+    zip(http_trackers, http_results)
 if is_working
 ]
 
 working_udp_trackers = [
 url
-for url, is_working in zip(udp_trackers, udp_results)
+for url, is_working in
+    zip(udp_trackers, udp_results)
 if is_working
 ]
 
