@@ -144,8 +144,7 @@ check_udp_with_limit(url)
 for url in udp_trackers
 ]
 
-http_results,
-udp_results = await asyncio.gather(
+http_results, udp_results = await asyncio.gather(
 asyncio.gather(*http_tasks),
 asyncio.gather(*udp_tasks),
 )
