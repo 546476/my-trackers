@@ -33,8 +33,9 @@ DOWNLOAD_LINK_RE = re.compile(
 
 OUTPUT_FILE = "trackers.txt"
 FETCH_TIMEOUT = 25
-CHECK_TIMEOUT = 8
-MAX_CONCURRENT_CHECKS = 100
+CHECK_TIMEOUT = 15
+MAX_HTTP_CONCURRENT_CHECKS = 150
+MAX_UDP_CONCURRENT_CHECKS = 150
 
 
 def extract_trackers(text):
@@ -124,24 +125,11 @@ async def process_source(session, url, trackers, failed, depth=0):
 
 async def check_http_tracker(session, semaphore, tracker):
     async with semaphore:
-        try:
-            async with session.get(
-                tracker,
-                timeout=aiohttp.ClientTimeout(total=CHECK_TIMEOUT),
-                allow_redirects=False,
-            ) as response:
-                return 200 <= response.status < 300
-        except Exception:
-            return False
-
-
-async def check_http_tracker(session, semaphore, tracker):
-    async with semaphore:
         for attempt in range(2):
             try:
                 async with session.get(
                     tracker,
-                    timeout=aiohttp.ClientTimeout(total=15),
+                    timeout=aiohttp.ClientTimeout(total=CHECK_TIMEOUT),
                     allow_redirects=True,
                 ) as response:
                     if 200 <= response.status < 300:
@@ -152,6 +140,7 @@ async def check_http_tracker(session, semaphore, tracker):
                         continue
 
                     return False
+
             except Exception:
                 if attempt == 0:
                     await asyncio.sleep(1)
@@ -201,7 +190,7 @@ async def check_udp_tracker(semaphore, tracker):
                     protocol.datagram_received = datagram_received
 
                     transport.sendto(request)
-                    response = await asyncio.wait_for(future, 15)
+                    response = await asyncio.wait_for(future, CHECK_TIMEOUT)
 
                     if len(response) < 16:
                         continue
@@ -228,15 +217,15 @@ async def check_udp_tracker(semaphore, tracker):
                 return False
 
         return False
-            return False
 
 
 async def main():
     trackers = set()
     failed = []
 
-    connector = aiohttp.TCPConnector(limit=MAX_CONCURRENT_CHECKS)
-    semaphore = asyncio.Semaphore(MAX_CONCURRENT_CHECKS)
+    connector = aiohttp.TCPConnector(limit=MAX_HTTP_CONCURRENT_CHECKS)
+    http_semaphore = asyncio.Semaphore(MAX_HTTP_CONCURRENT_CHECKS)
+    udp_semaphore = asyncio.Semaphore(MAX_UDP_CONCURRENT_CHECKS)
 
     async with aiohttp.ClientSession(connector=connector) as session:
         tasks = [
@@ -264,15 +253,15 @@ async def main():
     print(f"Failed sources: {len(failed)}")
 
     async with aiohttp.ClientSession(
-        connector=aiohttp.TCPConnector(limit=MAX_CONCURRENT_CHECKS)
+        connector=aiohttp.TCPConnector(limit=MAX_HTTP_CONCURRENT_CHECKS)
     ) as session:
         http_tasks = [
-            check_http_tracker(session, semaphore, tracker)
+            check_http_tracker(session, http_semaphore, tracker)
             for tracker in http_trackers
         ]
 
         udp_tasks = [
-            check_udp_tracker(semaphore, tracker)
+            check_udp_tracker(udp_semaphore, tracker)
             for tracker in udp_trackers
         ]
 
