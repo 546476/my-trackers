@@ -4,9 +4,7 @@ import json
 import re
 import urllib.request
 from urllib.parse import urljoin, urlparse
-def main():
-    working_udp_trackers = []
-    working_http_trackers = []
+
 HEADERS = {
     "User-Agent": "qBittorrentTrackerUpdater/1.0 (+https://github.com/546476/my-trackers)",
     "Accept": "text/plain, text/html, application/json, */*",
@@ -135,6 +133,21 @@ for url in urls:
     process_url(url)
 
 newline = chr(10)
+
+    working_http_trackers = [
+url
+for url, is_working in zip(http_trackers, http_results)
+if is_working
+]
+
+    working_udp_trackers = [
+url
+for url, is_working in zip(udp_trackers, udp_results)
+if is_working
+]
+
+working_http_trackers.sort()
+working_udp_trackers.sort()
 
 final_trackers = working_udp_trackers + working_http_trackers
 
