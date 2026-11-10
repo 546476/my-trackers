@@ -18,6 +18,7 @@ ACTION_SCRAPE = 2
 ACTION_ERROR = 3
 
 FAKE_INFO_HASH = b"" * 20
+FAKE_PEER_ID = b"-qB0000-" + b"0" * 12
 
 BENCODE_SIGNS = ("interval", "peers")
 
@@ -27,6 +28,15 @@ async def check_http_tracker(
     tracker_url: str,
 ) -> bool:
     try:
+        params = {
+            "info_hash": FAKE_INFO_HASH,
+            "peer_id": FAKE_PEER_ID,
+            "port": 6881,
+            "uploaded": 0,
+            "downloaded": 0,
+            "left": 0,
+            "event": "started","compact": 1,
+    }
         async with session.get(
             tracker_url,
             timeout=aiohttp.ClientTimeout(
