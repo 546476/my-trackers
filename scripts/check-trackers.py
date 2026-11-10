@@ -135,58 +135,99 @@ async def check_http_tracker(session, semaphore, tracker):
             return False
 
 
+async def check_http_tracker(session, semaphore, tracker):
+    async with semaphore:
+        for attempt in range(2):
+            try:
+                async with session.get(
+                    tracker,
+                    timeout=aiohttp.ClientTimeout(total=15),
+                    allow_redirects=True,
+                ) as response:
+                    if 200 <= response.status < 300:
+                        return True
+
+                    if response.status in (429, 500, 502, 503, 504):
+                        await asyncio.sleep(1)
+                        continue
+
+                    return False
+            except Exception:
+                if attempt == 0:
+                    await asyncio.sleep(1)
+                    continue
+
+                return False
+
+        return False
+
+
 async def check_udp_tracker(semaphore, tracker):
     async with semaphore:
-        parsed = urlparse(tracker)
-        host = parsed.hostname
-        port = parsed.port or 80
-
-        try:
-            loop = asyncio.get_running_loop()
-            address = await loop.getaddrinfo(host, port, type=socket.SOCK_DGRAM)
-            _, _, _, _, target = address[0]
-
-            transport, protocol = await loop.create_datagram_endpoint(
-                lambda: asyncio.DatagramProtocol(),
-                remote_addr=target,
-            )
+        for attempt in range(2):
+            parsed = urlparse(tracker)
+            host = parsed.hostname
+            port = parsed.port or 80
 
             try:
-                transaction_id = 0x41727101980
-                request = struct.pack(
-                    "!QII",
-                    0x41727101980,
-                    0,
-                    transaction_id,
+                loop = asyncio.get_running_loop()
+                address = await loop.getaddrinfo(
+                    host,
+                    port,
+                    type=socket.SOCK_DGRAM,
+                )
+                _, _, _, _, target = address[0]
+
+                transport, protocol = await loop.create_datagram_endpoint(
+                    lambda: asyncio.DatagramProtocol(),
+                    remote_addr=target,
                 )
 
-                future = loop.create_future()
+                try:
+                    transaction_id = 0x41727101980
+                    request = struct.pack(
+                        "!QII",
+                        0x41727101980,
+                        0,
+                        transaction_id,
+                    )
 
-                def datagram_received(data, addr):
-                    if not future.done():
-                        future.set_result(data)
+                    future = loop.create_future()
 
-                protocol.datagram_received = datagram_received
+                    def datagram_received(data, addr):
+                        if not future.done():
+                            future.set_result(data)
 
-                transport.sendto(request)
-                response = await asyncio.wait_for(future, CHECK_TIMEOUT)
+                    protocol.datagram_received = datagram_received
 
-                if len(response) < 16:
-                    return False
+                    transport.sendto(request)
+                    response = await asyncio.wait_for(future, 15)
 
-                action, received_transaction_id = struct.unpack(
-                    "!II",
-                    response[:8],
-                )
+                    if len(response) < 16:
+                        continue
 
-                return (
-                    action == 0
-                    and received_transaction_id == transaction_id
-                )
-            finally:
-                transport.close()
+                    action, received_transaction_id = struct.unpack(
+                        "!II",
+                        response[:8],
+                    )
 
-        except Exception:
+                    if (
+                        action == 0
+                        and received_transaction_id == transaction_id
+                    ):
+                        return True
+
+                finally:
+                    transport.close()
+
+            except Exception:
+                if attempt == 0:
+                    await asyncio.sleep(1)
+                    continue
+
+                return False
+
+        return False
             return False
 
 
