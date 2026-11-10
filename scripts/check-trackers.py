@@ -207,8 +207,8 @@ async def main():
 
     final_trackers = working_udp_trackers + working_http_trackers
 
-        with open("trackers.txt", "w", encoding="utf-8", newline="\n") as file:
-            file.write("\n".join(sorted(trackers)))
+    with open("trackers.txt", "w", encoding="utf-8", newline="\n") as file:
+        file.write("\n".join(sorted(trackers)))
         if trackers:
             file.write("\n")
 
