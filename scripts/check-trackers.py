@@ -62,7 +62,7 @@ def extract_trackers(text):
             domain in parsed.netloc.lower()
             for domain in ("github.com", "jsdelivr.net", "ngosang.github.io")
         ):
-        continue
+            continue
 
         found.add(tracker)
 
