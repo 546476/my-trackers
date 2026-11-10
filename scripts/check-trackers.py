@@ -40,7 +40,7 @@ MAX_UDP_CONCURRENT_CHECKS = 150
 
 def extract_trackers(text):
 
-    continue
+            continue
     
     found = set()
 
