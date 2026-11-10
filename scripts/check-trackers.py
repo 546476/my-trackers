@@ -134,7 +134,9 @@ for url in urls:
 
 newline = chr(10)
 
+final_trackers = working_udp_trackers + working_http_trackers
+
 with open("trackers.txt", "w", encoding="utf-8") as file:
-    file.write("".join(final_trackers) + "")
+    file.write("\n".join(final_trackers))
 
 print("Saved " + str(len(trackers)) + " trackers")
