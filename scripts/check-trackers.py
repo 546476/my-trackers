@@ -266,6 +266,15 @@ async def check_udp_tracker(
 
 
 async def main() -> None:
+    async def main() -> None:
+    reasons = {
+        "status": 0,
+        "no_bencode": 0,
+        "failure_reason": 0,
+        "no_interval": 0,
+        "no_peers": 0,
+        "exception": 0,
+    }
     with open("trackers.txt", "r", encoding="utf-8") as file:
         lines = file.readlines()
 
