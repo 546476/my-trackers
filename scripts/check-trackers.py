@@ -41,7 +41,7 @@ urls = [
 ]
 
 trackers = set()
-failed = ]
+failed = []
 
 def fetch(url):
 request = urllib.request.Request(url, headers=HEADERS)
