@@ -38,7 +38,8 @@ async def check_http_tracker(
             "event": "started","compact": 1,
     }
         async with session.get(
-            tracker_url,
+            tracker_url, params=params,
+            
             timeout=aiohttp.ClientTimeout(
                 total=HTTP_TIMEOUT,
                 connect=5,
