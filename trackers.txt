@@ -21,6 +21,7 @@ http://mediaclub.tv:80/announce
 http://mkfs.ru:80/announce
 http://open.demonii.si/announce
 http://retracker.gorcomnet.ru:80/announce
+http://retracker.joxnet.ru:80/announce
 http://retracker.x2k.ru/announce
 http://retracker.x2k.ru:80/announce
 http://siambit.com:80/announce
@@ -99,6 +100,7 @@ https://tr2.trkb.ru/announce
 https://tr2.trkb.ru:443/announce
 https://tracker-zhuqiy.dgj055.icu/announce
 https://tracker-zhuqiy.dgj055.icu:443/announce
+https://tracker.adgk.net:443/announce
 https://tracker.augrains.com/announce
 https://tracker.augrains.com:443/announce
 https://tracker.foreverpirates.co/announce
@@ -123,6 +125,7 @@ udp://120.78.150.131:6969/announce
 udp://135.125.198.235:1984/announce
 udp://138.186.10.167:1337/announce
 udp://143.20.154.228:42069/announce
+udp://143.20.154.229:42069/announce
 udp://149.106.106.25:443/announce
 udp://15.235.207.99:8081/announce
 udp://151.242.104.187:80/announce
@@ -136,6 +139,7 @@ udp://185.216.179.62:25/announce
 udp://192.99.100.68:6969/announce
 udp://193.148.251.93:6969/announce
 udp://193.34.92.5:80/announce
+udp://208.83.20.20:6969/announce
 udp://209.141.59.25:6969/announce
 udp://211.75.205.187:6969/announce
 udp://211.75.205.187:80/announce
@@ -188,6 +192,7 @@ udp://chihaya.toss.li:9696/announce
 udp://coeus.torrentonline.cc:42069/announce
 udp://discover.curiousfacts.blog:6969/announce
 udp://evan.im:6969/announce
+udp://exodus.desync.com:6969/announce
 udp://explodie.org:6969/announce
 udp://hidden.torrentonline.cc:42069/announce
 udp://ipv4announce.sktorrent.eu:6969/announce
@@ -214,6 +219,8 @@ udp://santost12.xyz:6969/announce
 udp://seedpeer.net:6969/announce
 udp://su-data.com:6969/announce
 udp://t.overflow.biz:6969/announce
+udp://t1.pow7.com:6969/announce
+udp://t2.pow7.com:6969/announce
 udp://torrent.tracker.durukanbal.com:6969/announce
 udp://torrents.artixlinux.org:6969/announce
 udp://tr4ck3r.duckdns.org:6969/announce
@@ -225,7 +232,6 @@ udp://tracker.aruku.ovh:8081/announce
 udp://tracker.auctor.tv:6969/announce
 udp://tracker.bittor.pw:1337/announce
 udp://tracker.cn.nyaa.net:6969/announce
-udp://tracker.corpscorp.online:80/announce
 udp://tracker.cyberia.is:6969/announce
 udp://tracker.dhitechnical.com:6969/announce
 udp://tracker.dler.com:6969/announce
@@ -255,12 +261,12 @@ udp://tracker.orsvarn.com:6969/announce
 udp://tracker.peerfect.org:6969/announce
 udp://tracker.playground.ru:6969/announce
 udp://tracker.qu.ax:6969/announce
-udp://tracker.sbsub.com:2710/announce
 udp://tracker.segso.net:6969/announce
 udp://tracker.sela.st:6969/announce
 udp://tracker.sigterm.xyz:6969/announce
 udp://tracker.skyts.net:6969/announce
 udp://tracker.tallpenguin.org:15750/announce
+udp://tracker.theoks.net:6969/announce
 udp://tracker.therarbg.to:6969/announce
 udp://tracker.torrent.eu.org:451/announce
 udp://tracker.torrents.observer:80/announce
