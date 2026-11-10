@@ -338,7 +338,7 @@ async def main() -> None:
 
     final_trackers = working_udp_trackers + working_http_trackers
 
-    with open(TRACKERS_FILE, "w", encoding="utf-8", newline="") as file:file.write("".join(final_trackers) + "")
+    with open("TRACKERS_FILE", "w", encoding="utf-8") as file:file.write("".join(clean_trackers) + "")
 
     print("HTTP trackers checked:", len(http_trackers))
     print("HTTP trackers passed:", len(working_http_trackers))
