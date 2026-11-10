@@ -3,6 +3,9 @@ import io
 import json
 import re
 import urllib.request
+import asyncio
+import socket
+import urllib.parse
 from urllib.parse import urljoin, urlparse
 
 HEADERS = {
@@ -143,6 +146,31 @@ udp_trackers = sorted(
 
 newline = chr(10)
 
+async def check_http_with_limit(url):
+    try:
+        parsed = urllib.parse.urlparse(url)
+        host = parsed.hostname
+        port = parsed.port or (443 if parsed.scheme == "https" else 80)
+
+        reader, writer = await asyncio.open_connection(host, port)
+        writer.close()
+        await writer.wait_closed()
+        return True
+    except Exception:
+        return False
+
+
+async def check_udp_with_limit(url):
+    try:
+        parsed = urllib.parse.urlparse(url)
+        host = parsed.hostname
+        port = parsed.port or 80
+
+        loop = asyncio.get_running_loop()
+        await loop.getaddrinfo(host, port, type=socket.SOCK_DGRAM)
+        return True
+    except Exception:
+        return False
 import asyncio
 
 async def main():
