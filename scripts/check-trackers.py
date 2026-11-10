@@ -256,7 +256,7 @@ async def check_udp_tracker(
 
 
 async def main() -> None:
-    with open(TRACKERS_FILE, "r", encoding="utf-8") as file:
+    with open("trackers.txt", "r", encoding="utf-8") as file:
         lines = file.readlines()
 
     trackers = [
