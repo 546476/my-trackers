@@ -173,13 +173,13 @@ async def check_udp_tracker(semaphore, tracker):
                 )
 
                 try:
-                    transaction_id = 0x41727101980
+                    transaction_id = 0x12345678
                     request = struct.pack(
-                        "!QII",
-                        0x41727101980,
-                        0,
-                        transaction_id,
-                    )
+                    "!QII",
+                    0x41727101980,
+                    0,
+                    transaction_id,
+)
 
                     future = loop.create_future()
 
