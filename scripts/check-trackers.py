@@ -83,49 +83,51 @@ def extract_trackers(text):
     return found
 
 def json_strings(value):
-if isinstance(value, str):
-yield value
-elif isinstance(value, dict):
-for item in value.values():
-yield from json_strings(item)
-elif isinstance(value, list):
-for item in value:
-yield from json_strings(item)
+    if isinstance(value, str):
+        yield value
+    elif isinstance(value, dict):
+        for item in value.values():
+            yield from json_strings(item)
+    elif isinstance(value, list):
+        for item in value:
+            yield from json_strings(item)
+
 
 def process_url(url, depth=0):
-try:
-text = fetch(url)
-trackers.update(extract_trackers(text))
+    try:
+        text = fetch(url)
+        trackers.update(extract_trackers(text))
 
         stripped = text.lstrip()
 
         if stripped.startswith(("{", "[")):
-try:
-data = json.loads(text)
+            try:
+                data = json.loads(text)
 
                 for value in json_strings(data):
-trackers.update(extract_trackers(value))
-except json.JSONDecodeError:
-pass
+                    trackers.update(extract_trackers(value))
+            except json.JSONDecodeError:
+                pass
 
         if depth == 0 and ("<a " in text.lower() or "html" in text.lower()):
-links = set()
+            links = set()
 
             for link in DOWNLOAD_LINK_RE.findall(text):
-absolute = urljoin(url, link)
+                absolute = urljoin(url, link)
 
                 if urlparse(absolute).netloc:
-links.add(absolute)
+                    links.add(absolute)
 
             for link in list(links)[:10]:
-process_url(link, depth=1)
+                process_url(link, depth=1)
 
     except Exception as error:
-failed.append(url + " - " + str(error))
-print("FAILED: " + url + ": " + str(error))
+        failed.append(url + " - " + str(error))
+        print("FAILED: " + url + ": " + str(error))
+
 
 for url in urls:
-process_url(url)
+    process_url(url)
 
 newline = chr(10)
 
@@ -168,5 +170,6 @@ async def main():
         file.write("\n".join(final_trackers))
 
     print("Saved " + str(len(final_trackers)) + " trackers")
+
 
 asyncio.run(main())
