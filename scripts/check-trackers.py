@@ -4,8 +4,6 @@ import random
 import struct
 from urllib.parse import urlparse
 
-TRACKERS_FILE = "trackers.txt"
-
 HTTP_CONCURRENCY = 110
 HTTP_LIMIT_PER_HOST = 8
 HTTP_TIMEOUT = 10
@@ -338,7 +336,7 @@ async def main() -> None:
 
     final_trackers = working_udp_trackers + working_http_trackers
 
-    with open("TRACKERS_FILE", "w", encoding="utf-8") as file:file.write("".join(clean_trackers) + "")
+    with open("trackers.txt", "w", encoding="utf-8") as file:file.write("".join(final_trackers) + "")
 
     print("HTTP trackers checked:", len(http_trackers))
     print("HTTP trackers passed:", len(working_http_trackers))
