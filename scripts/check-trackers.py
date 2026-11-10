@@ -52,10 +52,10 @@ def fetch(url):
     encoding = (response.headers.get("Content-Encoding") or "").lower()
 
     if encoding == "gzip" or data[:2] == bytes([31, 139]):
-try:
-data = gzip.GzipFile(fileobj=io.BytesIO(data)).read()
-except OSError:
-pass
+        try:
+            data = gzip.GzipFile(fileobj=io.BytesIO(data)).read()
+        except OSError:
+            pass
 
     charset = response.headers.get_content_charset() or "utf-8"
 return data.decode(charset, errors="ignore")
