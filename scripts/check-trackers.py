@@ -359,8 +359,11 @@ async def main() -> None:
     for reason, count in reasons.items():
         print(f"{reason}: {count}")
 
-    with open("trackers.txt", "w", encoding="utf-8") as file:file.write("".join(final_trackers) + "")
-
+    with open("trackers.txt", "w", encoding="utf-8", newline="\n") as file:
+      file.write("\n".join(sorted(trackers)))
+      if trackers:
+          file.write("\n")
+          
     print("HTTP trackers checked:", len(http_trackers))
     print("HTTP trackers passed:", len(working_http_trackers))
     print("HTTP trackers removed:", len(http_trackers) - len(working_http_trackers))
