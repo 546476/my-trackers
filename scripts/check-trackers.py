@@ -130,7 +130,7 @@ async def check_http_tracker(session, semaphore, tracker):
                 timeout=aiohttp.ClientTimeout(total=CHECK_TIMEOUT),
                 allow_redirects=False,
             ) as response:
-                return response.status < 500
+                return 200 <= response.status < 300
         except Exception:
             return False
 
