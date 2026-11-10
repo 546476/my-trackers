@@ -114,6 +114,9 @@ def process_url(url, depth=0):
         failed.append(f"{url} - {error}")
         print(f"FAILED: {url}: {error}")
 
+# ------- Проверки трекер
+GitHub - 546476/my-trackers
+GitHub - 546476/my-trackersgithub.com
 ов (sync, выполняются в пуле потоков) -------
 
 def _check_http_sync(url, timeout=10):
