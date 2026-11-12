@@ -1,134 +1,15 @@
 import asyncio
-import gzip
-import io
-import json
 import re
 import socket
 import struct
-import urllib.parse
-import urllib.request
-from urllib.parse import urljoin, urlparse
+from urllib.parse import urlparse
 
 import aiohttp
 
-from get_trackers import urls as SOURCE_URLS
-
-HEADERS = {
-    "User-Agent": "qBittorrentTrackerUpdater/1.0 (+https://github.com/546476/my-trackers)",
-    "Accept": "text/plain, text/html, application/json, */*",
-    "Accept-Encoding": "gzip",
-}
-
-TRACKER_RE = re.compile(r"(?:udp|https?)://[^\s<>\"']+", re.IGNORECASE)
-
-PRIVATE_RE = re.compile(
-    r"(?:passkey|authkey|token|api_key|apikey|secret)=",
-    re.IGNORECASE,
-)
-
-DOWNLOAD_LINK_RE = re.compile(
-    r"https?://[^\s<>\"']+\.(?:txt|list)(?:\?[^\s<>\"']*)?",
-    re.IGNORECASE,
-)
-
 OUTPUT_FILE = "trackers.txt"
-FETCH_TIMEOUT = 25
 CHECK_TIMEOUT = 15
 MAX_HTTP_CONCURRENT_CHECKS = 150
 MAX_UDP_CONCURRENT_CHECKS = 150
-
-
-def extract_trackers(text):
-    
-    found = set()
-
-    for tracker in TRACKER_RE.findall(text):
-        tracker = tracker.strip().rstrip(".,;)]}\"'")
-
-        parsed = urlparse(tracker)
-
-        if parsed.scheme.lower() not in ("udp", "http", "https"):
-            continue
-
-        if not parsed.hostname:
-            continue
-
-        if PRIVATE_RE.search(tracker):
-            continue
-
-        if tracker.lower().endswith((".txt", ".list")) or any(
-            domain in parsed.netloc.lower()
-            for domain in ("github.com", "jsdelivr.net", "ngosang.github.io")
-        ):
-            continue
-
-        found.add(tracker)
-
-    return found
-
-
-def json_strings(value):
-    if isinstance(value, str):
-        yield value
-    elif isinstance(value, dict):
-        for item in value.values():
-            yield from json_strings(item)
-    elif isinstance(value, list):
-        for item in value:
-            yield from json_strings(item)
-
-
-async def fetch_text(session, url):
-    async with session.get(
-        url,
-        headers=HEADERS,
-        timeout=aiohttp.ClientTimeout(total=FETCH_TIMEOUT),
-    ) as response:
-        response.raise_for_status()
-        data = await response.read()
-
-    if data[:2] == b"\x1f\x8b":
-        try:
-            data = gzip.GzipFile(fileobj=io.BytesIO(data)).read()
-        except OSError:
-            pass
-
-    charset = response.get_encoding() or "utf-8"
-    return data.decode(charset, errors="ignore")
-
-
-async def process_source(session, url, trackers, failed, depth=0):
-    try:
-        text = await fetch_text(session, url)
-        trackers.update(extract_trackers(text))
-
-        stripped = text.lstrip()
-
-        if stripped.startswith(("{", "[")):
-            try:
-                data = json.loads(text)
-
-                for value in json_strings(data):
-                    trackers.update(extract_trackers(value))
-            except (json.JSONDecodeError, TypeError):
-                pass
-
-        if depth == 0 and stripped.startswith("<"):
-            links = set()
-
-            for link in DOWNLOAD_LINK_RE.findall(text):
-                absolute = urljoin(url, link)
-
-                if urlparse(absolute).netloc:
-                    links.add(absolute)
-
-            for link in list(links)[:10]:
-                await process_source(session, link, trackers, failed, depth=1)
-
-    except Exception as error:
-        failed.append(f"{url} - {error}")
-        print(f"FAILED: {url}: {error}")
-
 
 async def check_http_tracker(session, semaphore, tracker):
     async with semaphore:
@@ -157,7 +38,6 @@ async def check_http_tracker(session, semaphore, tracker):
 
         return False
 
-
 class UDPTrackerProtocol(asyncio.DatagramProtocol):
     def __init__(self, future):
         self.future = future
@@ -172,7 +52,6 @@ class UDPTrackerProtocol(asyncio.DatagramProtocol):
     def error_received(self, exc):
         if not self.future.done():
             self.future.set_exception(exc)
-
 
 async def check_udp_tracker(semaphore, tracker):
     async with semaphore:
@@ -238,18 +117,16 @@ async def check_udp_tracker(semaphore, tracker):
 async def main():
     trackers = set()
     failed = []
-
-    connector = aiohttp.TCPConnector(limit=MAX_HTTP_CONCURRENT_CHECKS)
+    
     http_semaphore = asyncio.Semaphore(MAX_HTTP_CONCURRENT_CHECKS)
     udp_semaphore = asyncio.Semaphore(MAX_UDP_CONCURRENT_CHECKS)
 
-    async with aiohttp.ClientSession(connector=connector) as session:
-        tasks = [
-            process_source(session, url, trackers, failed)
-            for url in SOURCE_URLS
-        ]
-
-        await asyncio.gather(*tasks)
+    with open("trackers.txt", "r", encoding="utf-8") as file:
+        trackers = {
+            line.strip()
+            for line in file
+            if line.strip()
+        }
 
     http_trackers = sorted(
         tracker
