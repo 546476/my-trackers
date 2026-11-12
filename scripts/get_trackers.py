@@ -72,6 +72,13 @@ def normalize(tracker):
         return None
     if not tracker.lower().startswith(("udp://", "http://", "https://")):
         return None
+    parsed = urlparse(tracker)
+
+    if tracker.lower().endswith((".txt", ".list")) or any(
+        domain in parsed.netloc.lower()
+        for domain in ("github.com", "jsdelivr.net", "ngosang.github.io")
+    ):
+        return None
     if PRIVATE_RE.search(tracker):
         return None
     host = tracker.split("://", 1)[1]
