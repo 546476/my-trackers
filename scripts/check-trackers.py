@@ -7,7 +7,12 @@ from urllib.parse import urlparse
 import aiohttp
 
 OUTPUT_FILE = "trackers.txt"
-CHECK_TIMEOUT = 15
+
+HTTP_CHECK_TIMEOUT = 10
+HTTP_CONNECT_TIMEOUT = 5
+HTTP_READ_TIMEOUT = 5
+UDP_CHECK_TIMEOUT = 10
+
 MAX_HTTP_CONCURRENT_CHECKS = 150
 MAX_UDP_CONCURRENT_CHECKS = 150
 
@@ -17,8 +22,11 @@ async def check_http_tracker(session, semaphore, tracker):
             try:
                 async with session.get(
                     tracker,
-                    timeout=aiohttp.ClientTimeout(total=CHECK_TIMEOUT),
-                    allow_redirects=True,
+                    timeout=aiohttp.ClientTimeout(
+                        total=HTTP_CHECK_TIMEOUT,
+                        connect=HTTP_CONNECT_TIMEOUT,
+                        sock_read=HTTP_READ_TIMEOUT,
+                        allow_redirects=True,
                 ) as response:
                     if 200 <= response.status < 300:
                         return True
@@ -85,7 +93,7 @@ async def check_udp_tracker(semaphore, tracker):
                     )
 
                     transport.sendto(request)
-                    response = await asyncio.wait_for(future, CHECK_TIMEOUT)
+                    response = await asyncio.wait_for(future, UDP_CHECK_TIMEOUT)
 
                     if len(response) < 16:
                         continue
