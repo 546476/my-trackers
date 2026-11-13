@@ -124,9 +124,6 @@ async def check_udp_tracker(semaphore, tracker):
 
 
 async def main():
-    trackers = set()
-    failed = []
-    
     http_semaphore = asyncio.Semaphore(MAX_HTTP_CONCURRENT_CHECKS)
     udp_semaphore = asyncio.Semaphore(MAX_UDP_CONCURRENT_CHECKS)
 
