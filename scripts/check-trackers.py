@@ -149,7 +149,6 @@ async def main():
     print(f"Collected {len(trackers)} unique trackers")
     print(f"HTTP/HTTPS: {len(http_trackers)}")
     print(f"UDP: {len(udp_trackers)}")
-    print(f"Failed sources: {len(failed)}")
 
     async with aiohttp.ClientSession(
         connector=aiohttp.TCPConnector(limit=MAX_HTTP_CONCURRENT_CHECKS)
