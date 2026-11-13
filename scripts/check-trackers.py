@@ -26,6 +26,7 @@ async def check_http_tracker(session, semaphore, tracker):
                         total=HTTP_CHECK_TIMEOUT,
                         connect=HTTP_CONNECT_TIMEOUT,
                         sock_read=HTTP_READ_TIMEOUT,
+                        ),
                         allow_redirects=True,
                 ) as response:
                     if 200 <= response.status < 300:
