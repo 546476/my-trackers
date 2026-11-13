@@ -46,5 +46,4 @@ jobs:
             git add failed-sources.txt
           fi
           git diff --cached --quiet || git commit -m "Update trackers"
-          git pull --rebase origin "${GITHUB_REF_NAME}"
           git push
