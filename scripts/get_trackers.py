@@ -52,12 +52,6 @@ urls = [
     "https://raw.githubusercontent.com/adysec/tracker/main/trackers_best.txt",
     "https://newtrackon.com/list",
     "https://raw.githubusercontent.com/scriptzteam/BitTorrent-Tracker-List/refs/heads/main/trackers_best.txt",
-    "",
-    "",
-    "",
-    "",
-    "",
-    
     "https://torrends.to/torrent-tracker-list/?download=latest",
     "https://gist.githubusercontent.com/dujiulun/e90ae9e835d8e41ddc63/raw/e78883869a308395a1bf5d7296d65a3893a5bae6/BitTorrent-Trackers.txt",
     "https://tracker.adysec.com/trackers_best.txt"
