@@ -35,7 +35,6 @@ urls = [
     "https://newtrackon.com/api/stable",
     "https://cf.trackerslist.com/all.txt",
     "https://torrends.to/torrent-tracker-list/?download=latest",
-    "https://raw.githubusercontent.com/kkkgo/all-tracker-list/refs/heads/main/trackerslist.txt",
     "https://tinytorrent.net/best-torrent-tracker-list-updated/",
     "https://raw.githubusercontent.com/ngosang/trackerslist/master/trackers_best.txt",
     "https://raw.githubusercontent.com/kkkgo/all-tracker-list/main/trackerslist.txt",
