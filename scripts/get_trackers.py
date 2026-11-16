@@ -26,9 +26,7 @@ DOWNLOAD_LINK_RE = re.compile(
 )
 
 urls = [
-    "https://ngosang.github.io/trackerslist/trackers_all.txt",
     "https://cdn.jsdelivr.net/gh/ngosang/trackerslist@master/trackers_all.txt",
-    "https://raw.githubusercontent.com/ngosang/trackerslist/master/trackers_all.txt",
     "https://raw.githubusercontent.com/00xc0d3/BitTorrent-Tracker-List/refs/heads/main/trackers_all.txt",
     "https://mokk731.github.io/txt/trackerslist.txt",
     "https://raw.githubusercontent.com/chenjia404/CnTrackersList/master/all.txt",
@@ -38,11 +36,7 @@ urls = [
     "https://raw.githubusercontent.com/jhhd88/trackerslist/refs/heads/master/trackerslist.txt",
     "https://newtrackon.com/api/stable",
     "https://cf.trackerslist.com/all.txt",
-    "https://tracker.adysec.com/trackers_best.txt",
-    "https://gist.githubusercontent.com/dujiulun/e90ae9e835d8e41ddc63/raw/e78883869a308395a1bf5d7296d65a3893a5bae6/BitTorrent-Trackers.txt",
     "https://torrends.to/torrent-tracker-list/?download=latest",
-    "https://newtrackon.com/api/stable",
-    "https://raw.githubusercontent.com/jhhd88/trackerslist/refs/heads/master/trackerslist.txt",
     "https://raw.githubusercontent.com/kkkgo/all-tracker-list/refs/heads/main/trackerslist.txt",
     "https://tinytorrent.net/best-torrent-tracker-list-updated/",
     "https://raw.githubusercontent.com/ngosang/trackerslist/master/trackers_best.txt",
