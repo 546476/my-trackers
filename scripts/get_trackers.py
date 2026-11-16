@@ -26,7 +26,6 @@ DOWNLOAD_LINK_RE = re.compile(
 )
 
 urls = [
-    "https://cdn.jsdelivr.net/gh/ngosang/trackerslist@master/trackers_all.txt",
     "https://raw.githubusercontent.com/00xc0d3/BitTorrent-Tracker-List/refs/heads/main/trackers_all.txt",
     "https://mokk731.github.io/txt/trackerslist.txt",
     "https://raw.githubusercontent.com/chenjia404/CnTrackersList/master/all.txt",
