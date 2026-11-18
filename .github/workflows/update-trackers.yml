@@ -30,7 +30,8 @@ jobs:
       - name: Check trackers
         run: C:\Users\thena\AppData\Local\Programs\Python\Python313\python.exe scripts/check-trackers.py
 
-      - name: Commit updated list
+      - name: Commit and push
+        shell: pwsh
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
