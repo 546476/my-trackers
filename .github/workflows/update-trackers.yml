@@ -21,21 +21,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
-      - name: Set up Python
-        uses: actions/setup-python@v6
-        with:
-          python-version: "3.12"
-          cache: pip
-
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
 
       - name: Download and clean trackers
-        run: python scripts/get_trackers.py
+        run: C:\Users\thena\AppData\Local\Programs\Python\Python313\python.exe
 
       - name: Check trackers
-        run: python scripts/check-trackers.py
+        run: C:\Users\thena\AppData\Local\Programs\Python\Python313\python.exe
 
       - name: Commit updated list
         run: |
