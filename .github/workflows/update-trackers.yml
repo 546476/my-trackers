@@ -46,4 +46,5 @@ jobs:
             git add failed-sources.txt
           fi
           git diff --cached --quiet || git commit -m "Update trackers"
+          git pull --rebase origin main
           git push
