@@ -31,12 +31,17 @@ jobs:
         run: C:\Users\thena\AppData\Local\Programs\Python\Python313\python.exe scripts/check-trackers.py
 
       - name: Commit and push
-        shell: pwsh
+        shell: powershell
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add trackers.txt
           if (Test-Path failed-sources.txt) { git add failed-sources.txt }
-          git diff --cached --quiet || git commit -m "Update trackers"
+
+          git diff --cached --quiet
+          if ($LASTEXITCODE -ne 0) {
+            git commit -m "Update trackers"
+          }
+
           git pull --rebase origin main
           git push origin main
