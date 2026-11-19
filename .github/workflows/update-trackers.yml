@@ -59,7 +59,7 @@ jobs:
           path: .
 
       - name: Check trackers
-        run: C:Users\thenaAppDataLocalProgramsPythonPython313python.exe scripts/check-trackers.py
+        run: C:/Users/thena/AppData/Local/Programs/Python/Python313/python.exe scripts/check-trackers.py
 
       - name: Commit and push
         shell: powershell
