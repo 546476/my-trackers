@@ -64,7 +64,7 @@ jobs:
       - name: Commit and push
         shell: powershell
         run: |
-          Set-Alias -Name git -Value "C:\Program Files\Git\cmd\git.exe"
+         "C:\Program Files\Git\cmd" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
           
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
