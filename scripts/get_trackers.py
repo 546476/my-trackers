@@ -75,11 +75,25 @@ def normalize(tracker):
     if not tracker.lower().startswith(("udp://", "http://", "https://")):
         return None
     parsed = urlparse(tracker)
+    path = parsed.path.lower().rstrip("/")
 
-    if tracker.lower().endswith((".txt", ".list")) or any(
-        domain in parsed.netloc.lower()
-        for domain in ("github.com", "jsdelivr.net", "ngosang.github.io")
-    ):
+    if parsed.scheme == "udp":
+        if not parsed.hostname or not parsed.port:
+            return None
+    else:
+        if not path.endswith(("/announce", "/announce.php")):
+            return None
+
+    if tracker.lower().endswith((".txt", ".list")):
+        return None
+
+    blocked_domains = (
+        "github.com",
+        "jsdelivr.net",
+        "ngosang.github.io",
+    )
+
+    if any(domain in parsed.netloc.lower() for domain in blocked_domains):
         return None
     if PRIVATE_RE.search(tracker):
         return None
