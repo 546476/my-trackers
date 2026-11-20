@@ -92,6 +92,7 @@ def normalize(tracker):
         "jsdelivr",
         "ngosang",
         "x.com",
+        "reddit",
     )
 
     if any(domain in parsed.netloc.lower() for domain in blocked_domains):
