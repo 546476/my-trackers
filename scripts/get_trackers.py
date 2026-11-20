@@ -29,7 +29,7 @@ urls = [
     "https://raw.githubusercontent.com/00xc0d3/BitTorrent-Tracker-List/refs/heads/main/trackers_all.txt",
     "https://mokk731.github.io/txt/trackerslist.txt",
     "https://raw.githubusercontent.com/chenjia404/CnTrackersList/master/all.txt",
-    "https://raw.githubusercontent.com/hezhijie0327/Trackerslist/main/trackerslist_tracker.txt",
+    "https://raw.githubusercontent.com/hezhijie0327/Trackerslist/main/dist/tracker.txt",
     "https://raw.githubusercontent.com/dr5hx/tracker_merge/master/all.txt",
     "https://raw.githubusercontent.com/jhhd88/trackerslist/refs/heads/master/trackerslist.txt",
     "https://newtrackon.com/api/stable",
