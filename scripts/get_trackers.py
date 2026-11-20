@@ -88,9 +88,9 @@ def normalize(tracker):
         return None
 
     blocked_domains = (
-        "github.com",
-        "jsdelivr.net",
-        "ngosang.github.io",
+        "github",
+        "jsdelivr",
+        "ngosang",
         "x.com",
     )
 
