@@ -91,6 +91,7 @@ def normalize(tracker):
         "github.com",
         "jsdelivr.net",
         "ngosang.github.io",
+        "x.com",
     )
 
     if any(domain in parsed.netloc.lower() for domain in blocked_domains):
