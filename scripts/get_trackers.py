@@ -99,9 +99,6 @@ def normalize(tracker):
         return None
     if PRIVATE_RE.search(tracker):
         return None
-    host = tracker.split("://", 1)[1]
-    if not host:
-        return None
     return tracker
 
 def extract_trackers(text):
