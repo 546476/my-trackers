@@ -81,7 +81,7 @@ def normalize(tracker):
         if not parsed.hostname or not parsed.port:
             return None
     else:
-        if not path.endswith(("/announce", "/announce.php")):
+        if not re.search(r"/announce(?:/|$)", path):
             return None
 
     if tracker.lower().endswith((".txt", ".list")):
