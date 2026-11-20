@@ -38,8 +38,6 @@ urls = [
     "https://tinytorrent.net/best-torrent-tracker-list-updated/",
     "https://raw.githubusercontent.com/ngosang/trackerslist/master/trackers_best.txt",
     "https://raw.githubusercontent.com/kkkgo/all-tracker-list/main/trackerslist.txt",
-    "https://raw.githubusercontent.com/cdryzun/trackers/main/trackers.txt",
-    "https://raw.githubusercontent.com/cdryzun/trackers/main/trackers_v6.txt",
     "https://raw.githubusercontent.com/adysec/tracker/main/trackers_best.txt",
     "https://raw.githubusercontent.com/scriptzteam/BitTorrent-Tracker-List/refs/heads/main/trackers_best.txt",
     "https://gist.githubusercontent.com/dujiulun/e90ae9e835d8e41ddc63/raw/e78883869a308395a1bf5d7296d65a3893a5bae6/BitTorrent-Trackers.txt"
